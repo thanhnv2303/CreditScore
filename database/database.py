@@ -1,7 +1,6 @@
-from py2neo import Graph
 from pymongo import MongoClient
 
-from config.config import MongoDBConfig, Neo4jConfig
+from config.config import MongoDBConfig
 
 
 class Database(object):
@@ -18,9 +17,14 @@ class Database(object):
         self.mongo_wallet = self.mongo_db[MongoDBConfig.WALLET]
         self.mongo_tokens = self.mongo_db[MongoDBConfig.TOKENS]
         self.mongo_blocks = self.mongo_db[MongoDBConfig.BLOCKS]
+
+        self.mongo_db_credit_score = self.mongo[MongoDBConfig.CREDIT_SCORE_DATABASE]
+        self.mongo_wallet_credit = self.mongo_db_credit_score[MongoDBConfig.WALLET_CREDIT]
+        self.mongo_statistic_credit = self.mongo_db_credit_score[MongoDBConfig.STATISTIC_CREDIT]
+
         self.mongo_token_collection_dict = {}
 
-        self._graph = Graph(Neo4jConfig.bolt, auth=(Neo4jConfig.username, Neo4jConfig.password))
+        # self._graph = Graph(Neo4jConfig.bolt, auth=(Neo4jConfig.username, Neo4jConfig.password))
 
         # self._create_index()
 
@@ -30,6 +34,9 @@ class Database(object):
         self.mongo_transactions_transfer.create_index([("block_num", -1)])
         self.mongo_wallet.create_index([("address", "hashed")])
         # self.mongo_pool.create_index([("address", "hashed")])
+
+    def get_wallets_paging(self, skip, limit):
+        return self.mongo_wallet.find().skip(skip).limit(limit)
 
     def update_block(self, block):
         self.mongo_blocks.insert_one(block)
@@ -46,6 +53,10 @@ class Database(object):
 
         self.mongo_wallet.update_one(key, data, upsert=True)
 
+    def delete_wallet(self, address):
+        key = {'address': address}
+        self.mongo_wallet.delete_one(key)
+
     def get_wallet(self, address):
         key = {"address": address}
         wallet = self.mongo_wallet.find_one(key)
@@ -55,6 +66,36 @@ class Database(object):
             }
             self.update_wallet(wallet)
         return wallet
+
+    def get_wallet_credit(self, address):
+        key = {"address": address}
+        wallet = self.mongo_wallet_credit.find_one(key)
+        return wallet
+
+    def update_wallet_credit(self, wallet):
+        key = {'address': wallet['address']}
+        data = {"$set": wallet}
+
+        self.mongo_wallet_credit.update_one(key, data, upsert=True)
+
+    def get_statistic_credit(self, checkpoint):
+        key = {"checkpoint": checkpoint}
+        statistic_credit = self.mongo_statistic_credit.find_one(key)
+        if not statistic_credit:
+            statistic_credit = {
+                "checkpoint": checkpoint
+            }
+            self.update_statistic_credit(statistic_credit)
+        return statistic_credit
+
+    def update_statistic_credit(self, statistic_credit):
+        key = {"checkpoint": statistic_credit["checkpoint"]}
+        data = {"$set": statistic_credit}
+        self.mongo_statistic_credit.update_one(key, data, upsert=True)
+
+    def delete_statistic_credit(self, checkpoint):
+        key = {"checkpoint": checkpoint}
+        self.mongo_statistic_credit.delete_one(key)
 
     def insert_to_token_collection(self, token_address, event):
         if not self.mongo_token_collection_dict.get(token_address):
@@ -79,6 +120,13 @@ class Database(object):
         key = {'block_number': block_num}
 
         return self.mongo_db[contract_address].find(key)
+
+    def neo4j_update_credit_score(self, address, credit_score):
+        create = self._graph.run("match (p:WALLET { address:$address }) "
+                                 "set p.credit_score=$credit_score, return p",
+                                 address=address,
+                                 credit_score=credit_score).data()
+        return create[0]["p"]
 
     def neo4j_update_wallet_token(self, wallet, token):
         match = self._graph.run("match (p:WALLET {address:$address}) return p ", address=wallet.get("address")).data()

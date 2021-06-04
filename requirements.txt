@@ -7,4 +7,5 @@ eth-utils==1.9.5
 web3==5.19.0
 pymongo
 py2neo
+scipy
 pycoingecko

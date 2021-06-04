@@ -1,4 +1,7 @@
-class ExporterInterface:
+import json
+
+
+class ConsoleExporter:
     def open(self):
         pass
 
@@ -7,7 +10,7 @@ class ExporterInterface:
             self.export_item(item)
 
     def export_item(self, item):
-        pass
+        print(json.dumps(item))
 
     def close(self):
         pass
