@@ -26,27 +26,14 @@ class TotalAssetExtractor(Extractor):
             return
         for address in wallet_credit.get("lending_infos"):
             i = 0
-            lending_info_address = wallet_credit.get("lending_infos")[address]
-            while i < len(lending_info_address):
+            lending_info_address = wallet_data.get("lending_infos")[address]
+            while i <len(lending_info_address):
                 block_num = lending_info_address[i].get("block_number")
                 if block_num >= self.start_block:
                     break
                 i = i + 1
+
             wallet_credit.get("lending_infos")[address] = lending_info_address[i:]
-
-        for address in wallet_data.get("lending_infos"):
-            lending_info_address = wallet_data.get("lending_infos")[address]
-            i = len(lending_info_address) - 1
-            latest_block_wallet_credit_address = wallet_credit.get("lending_infos").get(address)[-1].get("block_number")
-
-            while i >= 0:
-                block_num = lending_info_address[i].get("block_number")
-                if block_num <= latest_block_wallet_credit_address:
-                    break
-                i = i - 1
-            if i == -1:
-                i = 0
-            wallet_credit.get("lending_infos")[address] += lending_info_address[i:]
 
         total_asset = 0
         for address in wallet_credit.get("lending_infos"):
