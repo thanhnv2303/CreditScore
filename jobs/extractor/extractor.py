@@ -23,3 +23,14 @@ class Extractor:
         if self.statistic_credit:
             self.statistic_credit["checkpoint"] = self.checkpoint
             self.database.update_statistic_credit(statistic_credit=self.statistic_credit)
+
+    def add_to_statistic_list(self,list_name,address,value):
+        self.lock.acquire()
+        if not self.statistic_credit.get(list_name):
+            self.statistic_credit[list_name] = {}
+        if not self.statistic_credit.get("checkpoint"):
+            self.statistic_credit["checkpoint"] = self.checkpoint
+
+        self.statistic_credit[list_name][address] = value
+        self.database.update_statistic_credit(self.statistic_credit)
+        self.lock.release()

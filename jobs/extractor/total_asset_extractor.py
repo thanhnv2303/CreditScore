@@ -1,4 +1,3 @@
-
 from database.database import Database
 from jobs.extractor.extractor import Extractor
 from utils.to_number import to_int
@@ -83,17 +82,22 @@ class TotalAssetExtractor(Extractor):
         wallet_credit["balances"] = wallet_data.get("balances")
         wallet_credit["transactions"] = wallet_data.get("transactions")
         wallet_credit["accumulate"] = wallet_data.get("accumulate")
-        wallet_credit["accumulates"] = wallet_data.get("accumulate_history")
+        wallet_credit["accumulate_history"] = wallet_data.get("accumulate_history")
         wallet_credit["lending_info"] = wallet_data.get("lending_info")
 
         self.database.update_wallet_credit(wallet_credit)
-        self.lock.acquire()
 
-        if not self.statistic_credit.get("total_asset_list"):
-            self.statistic_credit["total_asset_list"] = {}
-        if not self.statistic_credit.get("checkpoint"):
-            self.statistic_credit["checkpoint"] = self.checkpoint
+        list_name = "total_asset_list"
+        wallet_address = wallet_data.get("address")
 
-        self.statistic_credit["total_asset_list"][wallet_data.get("address")] = total_asset
-        self.database.update_statistic_credit(self.statistic_credit)
-        self.lock.release()
+        self.add_to_statistic_list(list_name, wallet_address, total_asset)
+
+        # self.lock.acquire()
+        # if not self.statistic_credit.get("total_asset_list"):
+        #     self.statistic_credit["total_asset_list"] = {}
+        # if not self.statistic_credit.get("checkpoint"):
+        #     self.statistic_credit["checkpoint"] = self.checkpoint
+        #
+        # self.statistic_credit["total_asset_list"][wallet_data.get("address")] = total_asset
+        # self.database.update_statistic_credit(self.statistic_credit)
+        # self.lock.release()
