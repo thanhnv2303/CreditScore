@@ -11,15 +11,16 @@ class LoanRatioExtractor(Extractor):
             return
 
         block_number_order, lending_infos_usd = self.get_lending_infos_usd(wallet_credit)
-        self._borrow_on_total_asset(block_number_order, lending_infos_usd, wallet_credit)
+        self._borrow_on_balance(block_number_order, lending_infos_usd, wallet_credit)
         self._borrow_on_supply(block_number_order, lending_infos_usd, wallet_credit)
 
     # x41
-    def _borrow_on_total_asset(self, block_number_order, lending_infos_usd, wallet_credit):
+    def _borrow_on_balance(self, block_number_order, lending_infos_usd, wallet_credit):
 
         change_times = len(block_number_order)
         avg_value = 0
         start_block = self.start_block
+
         i = 0
         while i < change_times:
             if i == change_times - 1:
@@ -30,7 +31,6 @@ class LoanRatioExtractor(Extractor):
             balance_usd = lending_infos_usd[block_number_str].get("balance")
             borrow_usd = lending_infos_usd[block_number_str].get("borrow")
             supply_usd = lending_infos_usd[block_number_str].get("supply")
-
             if balance_usd > 0:
                 avg_value += (borrow_usd / balance_usd) * (end_block - start_block)
 
@@ -38,7 +38,7 @@ class LoanRatioExtractor(Extractor):
             i += 1
 
         avg_value = avg_value / (self.end_block - self.start_block)
-        wallet_credit["borrow_on_total_asset"] = avg_value
+        wallet_credit["borrow_on_balance"] = avg_value
         self.database.update_wallet_credit(wallet_credit)
 
     # x42
@@ -96,8 +96,15 @@ class LoanRatioExtractor(Extractor):
                         j = 0
                         while (j < len(block_number_order) - 1):
 
+                            if j == 0 and block_num < block_number_order[j]:
+                                block_number_order.insert(0, block_num)
+                                j = -1
+                                break
+
                             if block_num > block_number_order[j] and block_num < block_number_order[j + 1]:
                                 block_number_order.insert(j + 1, block_num)
+                                j = -1
+                                break
                             j += 1
                         if j == 0 or j == len(block_number_order) - 1:
                             block_number_order.append(block_num)

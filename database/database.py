@@ -76,7 +76,8 @@ class Database(object):
         key = {'address': wallet['address']}
         data = {"$set": wallet}
 
-        self.mongo_wallet_credit.update_one(key, data, upsert=True)
+        self.mongo_wallet_credit.replace_one(key, wallet, upsert=True)
+        # self.mongo_wallet_credit.update_one(key, data, upsert=True)
 
     def get_statistic_credit(self, checkpoint):
         key = {"checkpoint": checkpoint}

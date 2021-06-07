@@ -27,7 +27,7 @@ class TotalAssetExtractor(Extractor):
         for address in wallet_credit.get("lending_infos"):
             i = 0
             lending_info_address = wallet_data.get("lending_infos")[address]
-            while i <len(lending_info_address):
+            while i < len(lending_info_address):
                 block_num = lending_info_address[i].get("block_number")
                 if block_num >= self.start_block:
                     break
@@ -52,6 +52,8 @@ class TotalAssetExtractor(Extractor):
                     end_block = self.end_block
                 else:
                     end_block = wallet_lending_token[i + 1].get("block_number")
+                if end_block < self.start_block:
+                    continue
                 accumulate_value = self.credit_score_service.token_amount_to_usd(address, amount) * (
                         end_block - start_block)
                 if accumulate_value > 0:
