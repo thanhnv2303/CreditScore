@@ -9,7 +9,8 @@ from utils.to_number import to_int, to_float
 class CreditScoreService:
     BNB = "0x"
 
-    def __init__(self, database=Database(), token_info="./infoToken.json"):
+    def __init__(self, database=Database(), list_token_filter="../artifacts/token_credit_info/listToken.txt",
+                 token_info="../artifacts/token_credit_info/infoToken.json"):
         self.database = database
         self.fix_prices = {
             "0x": {
@@ -20,8 +21,14 @@ class CreditScoreService:
 
         cur_path = os.path.dirname(os.path.realpath(__file__))
         path_market = cur_path + "/" + token_info
+
         with open(path_market, "r") as file:
-            self.tokens_market = json.load(file)
+            try:
+                self.tokens_market = json.load(file)
+            except:
+                self.update_token_market_info(fileInput=list_token_filter, fileOutput=token_info)
+                with open(path_market, "r") as file:
+                    self.tokens_market = json.load(file)
 
         self.tokens_market["0x"] = {
             "symbol": "BNB",
@@ -278,8 +285,9 @@ class CreditScoreService:
             print(e)
             return 0
 
-    def update_token_market_info(self):
-        update_token_credit_score(self.database)
+    def update_token_market_info(self, fileInput='../artifacts/token_credit_info/listToken.txt',
+                                 fileOutput='../artifacts/token_credit_info/infoToken.json'):
+        update_token_credit_score(fileInput=fileInput, fileOutput=fileOutput, database=self.database)
         return 0
 
     def get_token_market_info(self):

@@ -6,12 +6,12 @@ from pycoingecko import CoinGeckoAPI
 from database.database import Database
 
 
-def update_token_credit_score(database=Database()):
+def update_token_credit_score(fileInput = 'listToken.txt',fileOutput = 'infoToken.json',database=Database()):
     cg = CoinGeckoAPI()
     # Const
     currency = 'usd'
-    fileInput = 'listToken.txt'
-    fileOutput = 'infoToken.json'
+    # fileInput = 'listToken.txt'
+    # fileOutput = 'infoToken.json'
     #############
     # Get list of coins
     f = open(fileInput, "r")

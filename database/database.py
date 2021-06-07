@@ -123,6 +123,7 @@ class Database(object):
         return self.mongo_db[contract_address].find(key)
 
     def neo4j_update_credit_score(self, address, credit_score):
+        return
         create = self._graph.run("match (p:WALLET { address:$address }) "
                                  "set p.credit_score=$credit_score, return p",
                                  address=address,
@@ -130,6 +131,7 @@ class Database(object):
         return create[0]["p"]
 
     def neo4j_update_wallet_token(self, wallet, token):
+        return
         match = self._graph.run("match (p:WALLET {address:$address}) return p ", address=wallet.get("address")).data()
         if not match:
             create = self._graph.run("merge (p:WALLET { address:$address }) "
@@ -163,7 +165,7 @@ class Database(object):
         return create[0]["p"]
 
     def neo4j_update_lending_token(self, lending_pool, token):
-
+        return
         match = self._graph.run("match (p:LENDING {address:$address}) return p ",
                                 address=lending_pool.get("address")).data()
         if not match:
@@ -189,7 +191,7 @@ class Database(object):
         return create[0]["p"]
 
     def neo4j_update_token(self, token):
-
+        return
         create = self._graph.run("match (p { address:$address }) "
                                  "set p.price=$price,"
                                  "p.credit_score=$credit_score,"
@@ -205,7 +207,7 @@ class Database(object):
         return create
 
     def neo4j_update_link(self, tx):
-
+        return
         merge = self._graph.run("match (p {address: $from_address }),(e {address:$to_address})"
                                 " MERGE (p)-[r:"
                                 + tx.get("label") +

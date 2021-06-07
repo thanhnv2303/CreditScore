@@ -5,6 +5,7 @@ from web3.middleware import geth_poa_middleware
 
 from jobs.job_extract_credit_data import ExtractCreditDataJob
 from providers.auto import get_provider_from_uri, pick_random_provider_uri
+from services.credit_score_service import CreditScoreService
 from utils.thread_local_proxy import ThreadLocalProxy
 
 if __name__ == '__main__':
@@ -28,5 +29,9 @@ if __name__ == '__main__':
     w3 = Web3(batch_web3_provider)
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
     k_timestamp = 1613001794
+
+    token_service = CreditScoreService()
+    token_service.update_token_market_info()
+
     job_extract = ExtractCreditDataJob(web3=w3, k_timestamp=k_timestamp)
     job_extract.run()
