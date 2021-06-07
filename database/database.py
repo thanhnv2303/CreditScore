@@ -79,6 +79,9 @@ class Database(object):
         self.mongo_wallet_credit.replace_one(key, wallet, upsert=True)
         # self.mongo_wallet_credit.update_one(key, data, upsert=True)
 
+    def get_wallets_credit_paging(self, skip, limit):
+        return self.mongo_wallet_credit.find().skip(skip).limit(limit)
+
     def get_statistic_credit(self, checkpoint):
         key = {"checkpoint": checkpoint}
         statistic_credit = self.mongo_statistic_credit.find_one(key)
@@ -92,6 +95,7 @@ class Database(object):
     def update_statistic_credit(self, statistic_credit):
         key = {"checkpoint": statistic_credit["checkpoint"]}
         data = {"$set": statistic_credit}
+        # self.mongo_statistic_credit.replace_one(key, statistic_credit, upsert=True)
         self.mongo_statistic_credit.update_one(key, data, upsert=True)
 
     def delete_statistic_credit(self, checkpoint):

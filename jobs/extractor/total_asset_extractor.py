@@ -9,7 +9,9 @@ class TotalAssetExtractor(Extractor):
         self.statistic_credit["total_asset_list"] = {}
         self.statistic_credit_lock = False
 
+
     def extract(self, wallet_data):
+
         address = wallet_data.get("address")
         if not wallet_data.get("balances") and not wallet_data.get("lending_info"):
             # self.database.delete_wallet(address)

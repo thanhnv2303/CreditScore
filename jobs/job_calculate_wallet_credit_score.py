@@ -25,20 +25,15 @@ from database.database import Database
 from executors.batch_work_executor import BatchWorkExecutor
 from exporter.console_exporter import ConsoleExporter
 from jobs.base_job import BaseJob
-from jobs.extractor.circulating_asset_extractor import CirculatingAssetExtractor
-from jobs.extractor.digital_asset_extractor import DigitalAssetExtractor
-from jobs.extractor.loan_ratio_extractor import LoanRatioExtractor
-from jobs.extractor.payment_history_extractor import PaymentHistoryExtractor
-from jobs.extractor.total_asset_extractor import TotalAssetExtractor
+from services.credit_score_service_v_0_2_0 import CreditScoreServiceV020
 from services.eth_service import EthService
+from services.standardized_score_services import get_standardized_score_info
 
 logger = logging.getLogger(__name__)
 import datetime
 
 
-class ExtractCreditDataJob(BaseJob):
-    def _start(self):
-        self.item_exporter.open()
+class CalculateWalletCreditScoreJob(BaseJob):
 
     def __init__(
             self,
@@ -59,45 +54,52 @@ class ExtractCreditDataJob(BaseJob):
         self.ethService = EthService(web3)
         self.end_block = self.ethService.get_latest_block()
         self.checkpoint = checkpoint
-        if k_timestamp:
+        if not self.checkpoint:
+            now = datetime.datetime.now()
+            self.checkpoint = str(now.year) + "-" + str(now.month) + "-" + str(now.day)
 
+        if k_timestamp:
             self.start_block = self.ethService.get_block_at_timestamp(k_timestamp)
         else:
             self.start_block = self.end_block - 900000
 
-        self.extractors = []
-        self._add_extractor()
-
+        self.credit_score_services = CreditScoreServiceV020(database)
+        self.statistics_credit = {}
         self._dict_cache = []
 
-    def _add_extractor(self):
-        if not self.checkpoint:
-            now = datetime.datetime.now()
-            checkpoint = str(now.year) + "-" + str(now.month) + "-" + str(now.day)
-        else:
-            checkpoint = self.checkpoint
+    def _start(self):
+        self._calculate_standardized_score_info()
+        self.item_exporter.open()
 
-        self.extractors.append(
-            TotalAssetExtractor(self.start_block, self.end_block, checkpoint, self.web3, self.database))
-        self.extractors.append(
-            PaymentHistoryExtractor(self.start_block, self.end_block, checkpoint, self.web3, self.database))
-        self.extractors.append(
-            LoanRatioExtractor(self.start_block, self.end_block, checkpoint, self.web3, self.database))
-        self.extractors.append(
-            CirculatingAssetExtractor(self.start_block, self.end_block, checkpoint, self.web3, self.database))
-        self.extractors.append(
-            DigitalAssetExtractor(self.start_block, self.end_block, checkpoint, self.web3, self.database))
+    def _calculate_standardized_score_info(self):
+        statistics_credit = self.database.get_statistic_credit(self.checkpoint)
+        total_asset_list = list(statistics_credit.get('total_asset_list').values())
+        total_asset_list_mean, total_asset_list_deviation = get_standardized_score_info(total_asset_list)
 
-        statistic_credit = {
-            "checkpoint": checkpoint
-        }
-        self.database.delete_statistic_credit(checkpoint)
-        self.database.update_statistic_credit(statistic_credit)
+        age_list = list(statistics_credit.get('age_list').values())
+        age_list_mean, age_list_deviation = get_standardized_score_info(age_list)
+
+        value_of_transfer_to = list(statistics_credit.get('value_of_transfer_to').values())
+        value_of_transfer_to_mean, value_of_transfer_to_deviation = get_standardized_score_info(value_of_transfer_to)
+
+        number_of_transfer = list(statistics_credit.get('number_of_transfer').values())
+        number_of_transfer_mean, number_of_transfer_deviation = get_standardized_score_info(number_of_transfer)
+
+        statistics_credit["total_asset_list_mean"] = str(total_asset_list_mean)
+        statistics_credit["total_asset_list_deviation"] = str(total_asset_list_deviation)
+        statistics_credit["age_list_mean"] = str(age_list_mean)
+        statistics_credit["age_list_deviation"] = str(age_list_deviation)
+        statistics_credit["value_of_transfer_to_mean"] = str(value_of_transfer_to_mean)
+        statistics_credit["value_of_transfer_to_deviation"] = str(value_of_transfer_to_deviation)
+        statistics_credit["number_of_transfer_mean"] = str(number_of_transfer_mean)
+        statistics_credit["number_of_transfer_deviation"] = str(number_of_transfer_deviation)
+        self.statistics_credit = statistics_credit
+        self.database.update_statistic_credit(statistics_credit)
 
     def _export(self):
         skip = 0
         while True:
-            wallets = self.database.get_wallets_paging(skip=skip * self.paging, limit=self.paging)
+            wallets = self.database.get_wallets_credit_paging(skip=skip * self.paging, limit=self.paging)
             wallets = list(wallets)
             if len(wallets) == 0:
                 return
@@ -111,9 +113,11 @@ class ExtractCreditDataJob(BaseJob):
     def _export_batch(self, wallets):
         # handler work
         for wallet_data in wallets:
-            for extractor in self.extractors:
-                extractor.extract(wallet_data)
-
+            # print(wallet_data)
+            credit_score = self.credit_score_services.get_credit_score(wallet_data, self.statistics_credit)
+            wallet_data["credit_score"] = credit_score
+            # print("Credit score of wallet " + wallet_data.get("address") + " :" + str(credit_score))
+            self.database.update_wallet_credit(wallet_data)
         pass
 
     def _end(self):

@@ -114,6 +114,8 @@ class PaymentHistoryExtractor(Extractor):
                     transfer_from_credit[token_address] = transfer_from[token_address][i:]
                     number_of_transfer += len(transfer_from[token_address])
 
+
+
         wallet_credit["value_of_transfer_to"] = value_of_transfer_to
         wallet_credit["number_of_transfer"] = number_of_transfer
         self.database.update_wallet_credit(wallet_credit)

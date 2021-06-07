@@ -1,4 +1,5 @@
 from jobs.extractor.extractor import Extractor
+from utils.to_number import to_float, to_int
 
 
 class CirculatingAssetExtractor(Extractor):
@@ -19,17 +20,18 @@ class CirculatingAssetExtractor(Extractor):
     def _supply_on_total_asset(self, block_number_order, lending_infos_usd, wallet_credit):
         change_times = len(block_number_order)
         avg_value = 0
-        start_block = self.start_block
+        start_block = to_int(self.start_block)
         i = 0
         while i < change_times:
             if i == change_times - 1:
                 end_block = self.end_block
             else:
                 end_block = block_number_order[i + 1]
+            end_block = to_int(end_block)
             block_number_str = str(block_number_order[i])
-            balance_usd = lending_infos_usd[block_number_str].get("balance")
-            borrow_usd = lending_infos_usd[block_number_str].get("borrow")
-            supply_usd = lending_infos_usd[block_number_str].get("supply")
+            balance_usd = to_float(lending_infos_usd[block_number_str].get("balance"))
+            borrow_usd = to_float(lending_infos_usd[block_number_str].get("borrow"))
+            supply_usd = to_float(lending_infos_usd[block_number_str].get("supply"))
             total_asset = balance_usd + supply_usd - borrow_usd
             if total_asset > 0:
                 avg_value += (supply_usd / total_asset) * (end_block - start_block)
