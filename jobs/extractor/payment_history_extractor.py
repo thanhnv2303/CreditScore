@@ -26,8 +26,9 @@ class PaymentHistoryExtractor(Extractor):
         lending_infos = wallet_data.get("lending_infos")
         if lending_infos:
             for token in lending_infos:
-                token_age = lending_infos[token][0].get("block_number")
-                age = min(token_age, age)
+                if lending_infos[token]:
+                    token_age = lending_infos[token][0].get("block_number")
+                    age = min(token_age, age)
         accumulate_history = wallet_data.get("accumulate_history")
         if accumulate_history:
             for event in accumulate_history:
