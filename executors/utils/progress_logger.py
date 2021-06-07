@@ -44,6 +44,7 @@ class ProgressLogger:
 
     def start(self, total_items=None):
         self.total_items = total_items
+        logging.info("self.total_items = total_items" + str(self.total_items))
         self.start_time = datetime.now()
         start_message = 'Started {}.'.format(self.name)
         if self.total_items is not None:

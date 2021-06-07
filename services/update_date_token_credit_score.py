@@ -1,4 +1,5 @@
 import json
+import logging
 
 import numpy as np
 from pycoingecko import CoinGeckoAPI
@@ -6,7 +7,8 @@ from pycoingecko import CoinGeckoAPI
 from database.database import Database
 
 
-def update_token_credit_score(fileInput = 'listToken.txt',fileOutput = 'infoToken.json',database=Database()):
+def update_token_credit_score(fileInput='listToken.txt', fileOutput='infoToken.json', database=Database()):
+    logger = logging.getLogger('UpdateTokenCreditScore')
     cg = CoinGeckoAPI()
     # Const
     currency = 'usd'
@@ -47,7 +49,8 @@ def update_token_credit_score(fileInput = 'listToken.txt',fileOutput = 'infoToke
             market_cap[i] = data['market_data']['market_cap'][currency]
             num = num + 1
         except Exception as e:
-            print(e)
+            # print(e)
+            logger.info(e)
     ###############
     # Calculate Credit Score
 
@@ -62,13 +65,16 @@ def update_token_credit_score(fileInput = 'listToken.txt',fileOutput = 'infoToke
         creditScore[i] = int(0.6 * rank + 400 * ratioPrice)
     priceStr = ["%.2f" % j for j in priceCoin]
 
+    logger.info("Update token info in CoinGeckoAPI")
+
     with open(fileOutput, 'w') as f:
         tokens_dict = {}
         for i in range(len(id)):
             addr[i] = str(addr[i].lower())
             line = addr[i] + ' ' + coin[i] + ' ' + priceStr[i] + ' ' + str(creditScore[i]) + ' ' + str(
                 market_cap[i])
-            print(line)
+            # print(line)
+            logger.info(line)
             tokens_dict[addr[i]] = {
                 "symbol": coin[i],
                 "price": priceStr[i],

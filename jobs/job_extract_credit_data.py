@@ -104,7 +104,7 @@ class ExtractCreditDataJob(BaseJob):
             self.batch_work_executor.execute(
                 wallets,
                 self._export_batch,
-                len(wallets)
+                total_items=len(wallets)
             )
             skip = skip + 1
 

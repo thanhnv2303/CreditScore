@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import os
 
 from database.database import Database
@@ -43,6 +44,8 @@ class CreditScoreServiceV020:
         self.supply_threshold = 1000
         self.threshold = 1000
         self.total_borrow_threshold = 100
+
+        self.logger = logging.getLogger('CreditScoreServiceV0.2.0')
 
     def token_amount_to_usd(self, token_address, amount):
         token = self.tokens_market.get(token_address)
@@ -122,7 +125,8 @@ class CreditScoreServiceV020:
             total_asset = to_float(wallet.get("total_asset"))
             return (total_asset - total_asset_list_mean) / total_asset_list_deviation
         except Exception as e:
-            print(e)
+            # self.logger.error(e)
+            self.logger.error(e)
             return 0
 
     ### x21: là tuổi thọ của account
@@ -134,7 +138,8 @@ class CreditScoreServiceV020:
             return (age - age_list_mean) / age_list_deviation
 
         except Exception as e:
-            print(e)
+            # self.logger.error(e)
+            self.logger.error(e)
             return 0
 
     ### x22: được tính dựa trên tỷ lệ số lần bị thanh lý khoản vay trên tổng số lần vay
@@ -153,7 +158,7 @@ class CreditScoreServiceV020:
             return (1 - (number_of_liquidate / number_of_borrow)) * self.threshold
 
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             return 0
 
     ### x23: tổng lượng tiền giao dịch của account
@@ -165,7 +170,7 @@ class CreditScoreServiceV020:
             return (value_of_transfer_to - value_of_transfer_to_mean) / value_of_transfer_to_deviation
 
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             return 0
 
     ### x24: tổng lượng tiền giao dịch của account
@@ -177,7 +182,7 @@ class CreditScoreServiceV020:
             return (number_of_transfer - number_of_transfer_mean) / number_of_transfer_deviation
 
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             return 0
 
     ### x31 :  Tỷ lệ nợ trên số dư ví,
@@ -192,7 +197,7 @@ class CreditScoreServiceV020:
             return (1 - min(1, borrow_on_balance)) * self.threshold
 
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             return 0
 
     ###x32: tỷ lệ nợ trên số tiền đầu tư,
@@ -207,7 +212,7 @@ class CreditScoreServiceV020:
             return (1 - min(1, borrow_on_supply)) * self.threshold
 
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             return 0
 
     ### x41 : tỷ lệ tiền đang đầu tư trên tổng tài sản,
@@ -222,7 +227,7 @@ class CreditScoreServiceV020:
             return supply_on_total_asset * self.threshold
 
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             return 0
 
     ### x42 : ROE - Hiệu suất sinh lời trên tổng vốn đầu tư-

@@ -38,10 +38,8 @@ if __name__ == '__main__':
     token_service = CreditScoreServiceV020()
     token_service.update_token_market_info()
 
-    print("ExtractCreditDataJob")
     job_extract = ExtractCreditDataJob(web3=w3, checkpoint=checkpoint, k_timestamp=k_timestamp)
     job_extract.run()
 
-    print("CalculateWalletCreditScoreJob")
     job_calculate_credit_score = CalculateWalletCreditScoreJob(web3=w3, checkpoint=checkpoint, k_timestamp=k_timestamp)
     job_calculate_credit_score.run()

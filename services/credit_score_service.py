@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 
 from database.database import Database
@@ -41,6 +42,8 @@ class CreditScoreService:
         self.balance_threshold = 1000
         self.supply_threshold = 1000
 
+        self.logger = logging.getLogger('CreditScoreService')
+
     def token_amount_to_usd(self, token_address, amount):
         token = self.tokens_market.get(token_address)
         if not token:
@@ -77,7 +80,8 @@ class CreditScoreService:
             credit_score = a1 * x1 + a2 * x2 + (a3 / 4) * (b31 * x31 + b32 * x32 + b33 * x33) + 0.1 * x4
             return credit_score
         except Exception as e:
-            print(e)
+            # print(e)
+            self.logger.error(e)
             return 0
 
     ### 1.Số dư ví hiện tại
@@ -89,7 +93,8 @@ class CreditScoreService:
             else:
                 return 0
         except Exception as e:
-            print(e)
+            # print(e)
+            self.logger.error(e)
             return 0
 
     ### Tiền cho vay/gửi tiết kiệm

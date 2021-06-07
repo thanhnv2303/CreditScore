@@ -38,7 +38,7 @@ class CalculateWalletCreditScoreJob(BaseJob):
     def __init__(
             self,
             web3,
-            batch_size=128,
+            batch_size=24,
             max_workers=8,
             checkpoint=None,
             k_timestamp=None,
@@ -103,10 +103,11 @@ class CalculateWalletCreditScoreJob(BaseJob):
             wallets = list(wallets)
             if len(wallets) == 0:
                 return
+
             self.batch_work_executor.execute(
                 wallets,
                 self._export_batch,
-                len(wallets)
+                total_items=len(wallets)
             )
             skip = skip + 1
 
