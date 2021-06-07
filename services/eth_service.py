@@ -109,13 +109,13 @@ def block_to_point(block):
     return Point(block.number, block.timestamp)
 
 
-url = "http://25.19.185.225:8545"
-url = "https://bsc-dataseed.binance.org/"
-w3 = Web3(Web3.HTTPProvider(url))
-from web3.middleware import geth_poa_middleware
-
-w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-
-ethService = EthService(w3)
+# url = "http://25.19.185.225:8545"
+# url = "https://bsc-dataseed.binance.org/"
+# w3 = Web3(Web3.HTTPProvider(url))
+# from web3.middleware import geth_poa_middleware
+#
+# w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+#
+# ethService = EthService(w3)
 # print(ethService.get_block_range_for_timestamps(1602112735,1622112738))
-print(ethService.get_block_at_timestamp(1622112731))
+# print(ethService.get_block_at_timestamp(1622112731))

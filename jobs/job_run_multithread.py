@@ -67,6 +67,3 @@ class MultiThreadsJob(BaseJob):
 
     def clean_cache(self):
         self._dict_cache = []
-
-
-print(range(10, 20))
