@@ -45,6 +45,7 @@ class ExtractCreditDataJob(BaseJob):
             web3,
             batch_size=128,
             max_workers=8,
+            checkpoint=None,
             k_timestamp=None,
             item_exporter=ConsoleExporter(),
             database=Database(),
@@ -57,11 +58,12 @@ class ExtractCreditDataJob(BaseJob):
         self.database = database
         self.ethService = EthService(web3)
         self.end_block = self.ethService.get_latest_block()
+        self.checkpoint = checkpoint
         if k_timestamp:
 
             self.start_block = self.ethService.get_block_at_timestamp(k_timestamp)
         else:
-            self.start_block = self.end_block - 300000
+            self.start_block = self.end_block - 900000
 
         self.extractors = []
         self._add_extractor()
@@ -69,9 +71,11 @@ class ExtractCreditDataJob(BaseJob):
         self._dict_cache = []
 
     def _add_extractor(self):
-
-        now = datetime.datetime.now()
-        checkpoint = str(now.year) + "-" + str(now.month) + "-" + str(now.day)
+        if not self.checkpoint:
+            now = datetime.datetime.now()
+            checkpoint = str(now.year) + "-" + str(now.month) + "-" + str(now.day)
+        else:
+            checkpoint = self.checkpoint
 
         self.extractors.append(
             TotalAssetExtractor(self.start_block, self.end_block, checkpoint, self.web3, self.database))
