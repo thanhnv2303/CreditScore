@@ -41,7 +41,7 @@ class PaymentHistoryExtractor(Extractor):
 
         list_name = "age_list"
         self.add_to_statistic_list(list_name, wallet_address, age)
-        pass
+
 
     # x22 the num of -liquidate -borrow
     def _extract_borrow(self, wallet_data, wallet_credit):

@@ -1,4 +1,3 @@
-from database.database import Database
 from jobs.extractor.extractor import Extractor
 
 

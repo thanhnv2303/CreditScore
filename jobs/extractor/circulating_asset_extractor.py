@@ -33,7 +33,7 @@ class CirculatingAssetExtractor(Extractor):
             borrow_usd = to_float(lending_infos_usd[block_number_str].get("borrow"))
             supply_usd = to_float(lending_infos_usd[block_number_str].get("supply"))
             total_asset = balance_usd + supply_usd - borrow_usd
-            if total_asset > 0:
+            if total_asset > 0 and end_block > start_block:
                 avg_value += (supply_usd / total_asset) * (end_block - start_block)
 
             start_block = end_block

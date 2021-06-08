@@ -32,7 +32,7 @@ class LoanRatioExtractor(Extractor):
             balance_usd = to_float(lending_infos_usd[block_number_str].get("balance"))
             borrow_usd = to_float(lending_infos_usd[block_number_str].get("borrow"))
             supply_usd = to_float(lending_infos_usd[block_number_str].get("supply"))
-            if balance_usd > 0:
+            if balance_usd > 0 and end_block > start_block:
                 avg_value += (borrow_usd / balance_usd) * (end_block - start_block)
 
             start_block = end_block
@@ -59,7 +59,7 @@ class LoanRatioExtractor(Extractor):
             borrow_usd = to_float(lending_infos_usd[block_number_str].get("borrow"))
             supply_usd = to_float(lending_infos_usd[block_number_str].get("supply"))
 
-            if supply_usd > 0:
+            if supply_usd > 0 and end_block > start_block:
                 avg_value += (borrow_usd / supply_usd) * (end_block - start_block)
 
             start_block = end_block

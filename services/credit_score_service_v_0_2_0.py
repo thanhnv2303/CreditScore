@@ -123,7 +123,7 @@ class CreditScoreServiceV020:
             total_asset_list_mean = to_float(statistics_credit["total_asset_list_mean"])
             total_asset_list_deviation = to_float(statistics_credit["total_asset_list_deviation"])
             total_asset = to_float(wallet.get("total_asset"))
-            return (total_asset - total_asset_list_mean) / total_asset_list_deviation
+            return (total_asset - total_asset_list_mean) *10/ total_asset_list_deviation +50
         except Exception as e:
             # self.logger.error(e)
             self.logger.error(e)
@@ -135,7 +135,7 @@ class CreditScoreServiceV020:
             age_list_mean = to_float(statistics_credit["age_list_mean"])
             age_list_deviation = to_float(statistics_credit["age_list_deviation"])
             age = to_float(wallet.get("age"))
-            return (age - age_list_mean) / age_list_deviation
+            return (age - age_list_mean) *10/ age_list_deviation +50
 
         except Exception as e:
             # self.logger.error(e)
@@ -167,7 +167,7 @@ class CreditScoreServiceV020:
             value_of_transfer_to_mean = to_float(statistics_credit["value_of_transfer_to_mean"])
             value_of_transfer_to_deviation = to_float(statistics_credit["value_of_transfer_to_deviation"])
             value_of_transfer_to = to_float(wallet.get("value_of_transfer_to"))
-            return (value_of_transfer_to - value_of_transfer_to_mean) / value_of_transfer_to_deviation
+            return (value_of_transfer_to - value_of_transfer_to_mean) *10/ value_of_transfer_to_deviation +50
 
         except Exception as e:
             self.logger.error(e)
@@ -179,7 +179,7 @@ class CreditScoreServiceV020:
             number_of_transfer_mean = to_float(statistics_credit["number_of_transfer_mean"])
             number_of_transfer_deviation = to_float(statistics_credit["number_of_transfer_deviation"])
             number_of_transfer = to_float(wallet.get("number_of_transfer"))
-            return (number_of_transfer - number_of_transfer_mean) / number_of_transfer_deviation
+            return (number_of_transfer - number_of_transfer_mean) *10/ number_of_transfer_deviation +50
 
         except Exception as e:
             self.logger.error(e)
