@@ -126,6 +126,12 @@ class Database(object):
 
         return self.mongo_db[contract_address].find(key)
 
+    def get_num_transaction_at_contract(self, contract_address, gt_block_number=0):
+
+        key = {"block_number": {"$gt": gt_block_number}}
+
+        return self.mongo_db[contract_address].count(key)
+
     def neo4j_update_credit_score(self, address, credit_score):
         return
         create = self._graph.run("match (p:WALLET { address:$address }) "

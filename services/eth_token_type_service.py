@@ -24,7 +24,7 @@ import logging
 from web3.exceptions import BadFunctionCallOutput
 
 from artifacts.abi_py.vToken_abi import VToken_ABI
-from ethereumetl.erc20_abi import ERC20_ABI
+from artifacts.abi_py.erc20_abi import ERC20_ABI
 
 logger = logging.getLogger('eth_token_service')
 

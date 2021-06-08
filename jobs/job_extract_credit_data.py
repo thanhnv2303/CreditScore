@@ -53,7 +53,7 @@ class ExtractCreditDataJob(BaseJob):
         self.item_exporter = item_exporter
         self.batch_work_executor = BatchWorkExecutor(batch_size, max_workers)
         self.max_workers = max_workers
-        self.paging = self.max_workers * 3
+        self.paging = self.max_workers * 4
         self.web3 = web3
         self.database = database
         self.ethService = EthService(web3)
@@ -91,7 +91,7 @@ class ExtractCreditDataJob(BaseJob):
         statistic_credit = {
             "checkpoint": checkpoint
         }
-        self.database.delete_statistic_credit(checkpoint)
+        # self.database.delete_statistic_credit(checkpoint)
         self.database.update_statistic_credit(statistic_credit)
 
     def _export(self):
@@ -111,6 +111,8 @@ class ExtractCreditDataJob(BaseJob):
     def _export_batch(self, wallets):
         # handler work
         for wallet_data in wallets:
+            if wallet_data.get("checkpoint") and wallet_data.get("checkpoint") == self.checkpoint:
+                continue
             for extractor in self.extractors:
                 extractor.extract(wallet_data)
 
