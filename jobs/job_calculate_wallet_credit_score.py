@@ -73,16 +73,20 @@ class CalculateWalletCreditScoreJob(BaseJob):
 
     def _calculate_standardized_score_info(self):
         statistics_credit = self.database.get_statistic_credit(self.checkpoint)
-        total_asset_list = list(statistics_credit.get('total_asset_list').values())
+        # total_asset_list = list(statistics_credit.get('total_asset_list').values())
+        total_asset_list = list(statistics_credit.get('total_asset_list'))
         total_asset_list_mean, total_asset_list_deviation = get_standardized_score_info(total_asset_list)
 
-        age_list = list(statistics_credit.get('age_list').values())
+        # age_list = list(statistics_credit.get('age_list').values())
+        age_list = list(statistics_credit.get('age_list'))
         age_list_mean, age_list_deviation = get_standardized_score_info(age_list)
 
-        value_of_transfer_to = list(statistics_credit.get('value_of_transfer_to').values())
+        # value_of_transfer_to = list(statistics_credit.get('value_of_transfer_to').values())
+        value_of_transfer_to = list(statistics_credit.get('value_of_transfer_to'))
         value_of_transfer_to_mean, value_of_transfer_to_deviation = get_standardized_score_info(value_of_transfer_to)
 
-        number_of_transfer = list(statistics_credit.get('number_of_transfer').values())
+        # number_of_transfer = list(statistics_credit.get('number_of_transfer').values())
+        number_of_transfer = list(statistics_credit.get('number_of_transfer'))
         number_of_transfer_mean, number_of_transfer_deviation = get_standardized_score_info(number_of_transfer)
 
         statistics_credit["total_asset_list_mean"] = str(total_asset_list_mean)

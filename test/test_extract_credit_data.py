@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 
 from web3 import Web3
@@ -9,6 +10,11 @@ from jobs.job_extract_credit_data import ExtractCreditDataJob
 from providers.auto import get_provider_from_uri, pick_random_provider_uri
 from services.credit_score_service_v_0_2_0 import CreditScoreServiceV020
 from utils.thread_local_proxy import ThreadLocalProxy
+
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
 
 if __name__ == '__main__':
 

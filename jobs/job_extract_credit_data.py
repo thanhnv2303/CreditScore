@@ -111,8 +111,8 @@ class ExtractCreditDataJob(BaseJob):
     def _export_batch(self, wallets):
         # handler work
         for wallet_data in wallets:
-            if wallet_data.get("checkpoint") and wallet_data.get("checkpoint") == self.checkpoint:
-                continue
+            # if wallet_data.get("checkpoint") and wallet_data.get("checkpoint") == self.checkpoint:
+            #     continue
             for extractor in self.extractors:
                 extractor.extract(wallet_data)
 

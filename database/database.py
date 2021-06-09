@@ -98,6 +98,12 @@ class Database(object):
         # self.mongo_statistic_credit.replace_one(key, statistic_credit, upsert=True)
         self.mongo_statistic_credit.update_one(key, data, upsert=True)
 
+    def push_tolist_statistic_credit(self, checkpoint, list_name, element):
+        key = {"checkpoint": checkpoint}
+        data = {"$push": {list_name: element}}
+        # self.mongo_statistic_credit.replace_one(key, statistic_credit, upsert=True)
+        self.mongo_statistic_credit.update(key, data, upsert=True)
+
     def delete_statistic_credit(self, checkpoint):
         key = {"checkpoint": checkpoint}
         self.mongo_statistic_credit.delete_one(key)

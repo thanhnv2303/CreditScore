@@ -6,7 +6,10 @@ sys.path.insert(0, os.path.join(TOP_DIR, './'))
 
 import logging
 
-logging.getLogger().setLevel(logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
 
 from providers.auto import pick_random_provider_uri
 from streaming.credit_score_streamer import CreditScoreStreamer
