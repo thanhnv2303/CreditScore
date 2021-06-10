@@ -72,6 +72,9 @@ class Database(object):
         wallet = self.mongo_wallet_credit.find_one(key)
         return wallet
 
+    def get_one_wallet(self):
+        return self.mongo_wallet.find_one()
+
     def update_wallet_credit(self, wallet):
         key = {'address': wallet['address']}
         data = {"$set": wallet}

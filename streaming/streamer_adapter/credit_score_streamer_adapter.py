@@ -13,6 +13,8 @@ from services.credit_score_service_v_0_2_0 import CreditScoreServiceV020
 from services.get_k_timestamp import get_k_timestamp
 from utils.thread_local_proxy import ThreadLocalProxy
 
+logger = logging.getLogger("CreditScoreStreamerAdapter")
+
 
 class CreditScoreStreamerAdapter:
     def __init__(
@@ -22,7 +24,10 @@ class CreditScoreStreamerAdapter:
             max_workers=8,
             checkpoint=None,
             item_exporter=ConsoleExporter(),
-            database=Database()):
+            database=Database(),
+            list_token_filter="artifacts/token_credit_info/listToken.txt",
+            token_info="artifacts/token_credit_info/infoToken.json"
+    ):
         self.item_exporter = item_exporter
 
         self.max_workers = max_workers
@@ -47,6 +52,9 @@ class CreditScoreStreamerAdapter:
         self.logger = logging.getLogger('CreditScoreStreamerAdapter')
         self._dict_cache = []
 
+        self.list_token_filter = list_token_filter
+        self.token_info = token_info
+
     def open(self):
         pass
 
@@ -54,25 +62,33 @@ class CreditScoreStreamerAdapter:
         return int(self.w3.eth.getBlock("latest").number)
 
     def export_all(self, start_block, end_block):
-        token_service = CreditScoreServiceV020()
-        token_service.update_token_market_info()
+        logger.info("Update token market info")
+        token_service = CreditScoreServiceV020(self.database, self.list_token_filter, self.token_info)
+        token_service.update_token_market_info(fileInput=self.list_token_filter, fileOutput=self.token_info)
 
+        logger.info("-------------------------------------------------------------")
+        logger.info("ExtractCreditDataJob ")
         job_extract = ExtractCreditDataJob(web3=self.w3,
-                                           batch_size=128,
-                                           max_workers=8,
+                                           batch_size=self.batch_size,
+                                           max_workers=self.max_workers,
                                            checkpoint=self.checkpoint,
                                            k_timestamp=self.k_timestamp,
                                            item_exporter=ConsoleExporter(),
                                            database=self.database)
         job_extract.run()
 
+        logger.info("-------------------------------------------------------------")
+        logger.info("CalculateWalletCreditScoreJob ")
         job_calculate_credit_score = CalculateWalletCreditScoreJob(web3=self.w3,
-                                                                   batch_size=128,
-                                                                   max_workers=8,
+                                                                   batch_size=self.batch_size,
+                                                                   max_workers=self.max_workers,
                                                                    checkpoint=self.checkpoint,
                                                                    k_timestamp=self.k_timestamp,
                                                                    item_exporter=ConsoleExporter(),
-                                                                   database=self.database)
+                                                                   database=self.database,
+                                                                   list_token_filter=self.list_token_filter,
+                                                                   token_info=self.token_info
+                                                                   )
         job_calculate_credit_score.run()
 
     def close(self):

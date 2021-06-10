@@ -1,10 +1,16 @@
+import logging
+import time
+
 from jobs.extractor.extractor import Extractor
 from utils.to_number import to_int, to_float
 
+logger = logging.getLogger("Loan Ratio Extractor")
 
 class LoanRatioExtractor(Extractor):
 
     def extract(self, wallet_data):
+
+        # start_time = time.time()
         wallet_address = wallet_data.get("address")
         wallet_credit = self.database.get_wallet_credit(wallet_address)
         if not wallet_credit:
@@ -14,6 +20,7 @@ class LoanRatioExtractor(Extractor):
         self._borrow_on_balance(block_number_order, lending_infos_usd, wallet_credit)
         self._borrow_on_supply(block_number_order, lending_infos_usd, wallet_credit)
 
+        # logger.info("extract time one: " + str(time.time() - start_time))
     # x41
     def _borrow_on_balance(self, block_number_order, lending_infos_usd, wallet_credit):
 

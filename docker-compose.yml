@@ -1,0 +1,21 @@
+version: '3'
+services:
+  calculate-credit-score:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: calculate-credit-score
+    container_name: calculate-credit-score
+    volumes:
+      - .:/project
+    command: |
+      bash -c "
+        python3 ./docker_run/calculate_credit_score.py
+      "
+    env_file:
+      - ./.env
+    environment:
+      - MONGO_HOST
+      - MONGO_PORT
+      - NEO4J_HOST
+      - NEO4J_BOTH_PORT

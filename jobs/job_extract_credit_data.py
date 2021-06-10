@@ -20,8 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import logging
+import time
 
 from database.database import Database
+from database.memory_storage import MemoryStorage
 from executors.batch_work_executor import BatchWorkExecutor
 from exporter.console_exporter import ConsoleExporter
 from jobs.base_job import BaseJob
@@ -51,8 +53,9 @@ class ExtractCreditDataJob(BaseJob):
             database=Database(),
     ):
         self.item_exporter = item_exporter
-        self.batch_work_executor = BatchWorkExecutor(batch_size, max_workers)
+        self.batch_size = batch_size
         self.max_workers = max_workers
+        self.batch_work_executor = BatchWorkExecutor(batch_size, max_workers)
         self.paging = self.max_workers * 4
         self.web3 = web3
         self.database = database
@@ -69,6 +72,8 @@ class ExtractCreditDataJob(BaseJob):
         self._add_extractor()
 
         self._dict_cache = []
+
+        self.local_storage = MemoryStorage.getInstance()
 
     def _add_extractor(self):
         if not self.checkpoint:
@@ -97,16 +102,21 @@ class ExtractCreditDataJob(BaseJob):
     def _export(self):
         skip = 0
         while True:
+            start_time = time.time()
             wallets = self.database.get_wallets_paging(skip=skip * self.paging, limit=self.paging)
+
+            # logger.info("time to get wallet" + str(time.time() - start_time))
             wallets = list(wallets)
             if len(wallets) == 0:
                 return
+            # self.batch_work_executor = BatchWorkExecutor(self.batch_size, self.max_workers)
             self.batch_work_executor.execute(
                 wallets,
                 self._export_batch,
-                total_items=len(wallets)
+                # total_items=len(wallets)
             )
             skip = skip + 1
+            logger.info("Time to extract " + str(self.paging) + " wallet is " + str(time.time() - start_time))
 
     def _export_batch(self, wallets):
         # handler work
@@ -119,6 +129,16 @@ class ExtractCreditDataJob(BaseJob):
         pass
 
     def _end(self):
+        ### save statistic value to database
+        logger.info("save statistic value to database")
+        statistic_credit = {
+            "checkpoint": self.checkpoint
+        }
+        for key in self.local_storage.get_keys():
+            if key:
+                statistic_credit[key] = self.local_storage.get_element(key)
+
+        self.database.update_statistic_credit(statistic_credit)
         self.batch_work_executor.shutdown()
         self.item_exporter.close()
 

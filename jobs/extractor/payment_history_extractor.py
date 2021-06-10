@@ -1,12 +1,17 @@
+import logging
 import math
+import time
 
 from jobs.extractor.extractor import Extractor
 from utils.to_number import to_int
+
+logger = logging.getLogger("Payment History Extractor")
 
 
 class PaymentHistoryExtractor(Extractor):
 
     def extract(self, wallet_data):
+        # start_time = time.time()
         wallet_address = wallet_data.get("address")
         wallet_credit = self.database.get_wallet_credit(wallet_address)
         if not wallet_credit:
@@ -14,7 +19,8 @@ class PaymentHistoryExtractor(Extractor):
         self._extract_age(wallet_data, wallet_credit)
         self._extract_borrow(wallet_data, wallet_credit)
         self._extract_transfer(wallet_data, wallet_credit)
-        pass
+
+        # logger.info("extract time one: " + str(time.time() - start_time))
 
     # x21
     def _extract_age(self, wallet_data, wallet_credit):
@@ -41,7 +47,6 @@ class PaymentHistoryExtractor(Extractor):
 
         list_name = "age_list"
         self.add_to_statistic_list(list_name, wallet_address, age)
-
 
     # x22 the num of -liquidate -borrow
     def _extract_borrow(self, wallet_data, wallet_credit):
@@ -114,8 +119,6 @@ class PaymentHistoryExtractor(Extractor):
                         i = i + 1
                     transfer_from_credit[token_address] = transfer_from[token_address][i:]
                     number_of_transfer += len(transfer_from[token_address])
-
-
 
         wallet_credit["value_of_transfer_to"] = value_of_transfer_to
         wallet_credit["number_of_transfer"] = number_of_transfer

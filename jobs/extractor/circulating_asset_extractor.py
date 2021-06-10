@@ -1,10 +1,16 @@
+import logging
+import time
+
 from jobs.extractor.extractor import Extractor
 from utils.to_number import to_float, to_int
+
+logger = logging.getLogger("Circulating Asset Extractor")
 
 
 class CirculatingAssetExtractor(Extractor):
 
     def extract(self, wallet_data):
+        # start_time = time.time()
         wallet_address = wallet_data.get("address")
         wallet_credit = self.database.get_wallet_credit(wallet_address)
         if not wallet_credit:
@@ -15,7 +21,7 @@ class CirculatingAssetExtractor(Extractor):
         self._supply_on_total_asset(block_number_order, lending_infos_usd, wallet_credit)
         self._interest_on_supply(block_number_order, lending_infos_usd, wallet_credit)
 
-        # x41
+        # logger.info("extract time one: " + str(time.time() - start_time))
 
     def _supply_on_total_asset(self, block_number_order, lending_infos_usd, wallet_credit):
         change_times = len(block_number_order)

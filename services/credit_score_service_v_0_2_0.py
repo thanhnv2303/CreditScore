@@ -11,8 +11,8 @@ from utils.to_number import to_int, to_float
 class CreditScoreServiceV020:
     BNB = "0x"
 
-    def __init__(self, database=Database(), list_token_filter="../artifacts/token_credit_info/listToken.txt",
-                 token_info="../artifacts/token_credit_info/infoToken.json"):
+    def __init__(self, database=Database(), list_token_filter="artifacts/token_credit_info/listToken.txt",
+                 token_info="artifacts/token_credit_info/infoToken.json"):
         self.database = database
         self.fix_prices = {
             "0x": {
@@ -21,8 +21,8 @@ class CreditScoreServiceV020:
             }
         }
 
-        cur_path = os.path.dirname(os.path.realpath(__file__))
-        path_market = cur_path + "/" + token_info
+        cur_path = os.path.dirname(os.path.realpath(__file__)) + "/../"
+        path_market = cur_path + token_info
 
         with open(path_market, "r") as file:
             try:
@@ -123,7 +123,7 @@ class CreditScoreServiceV020:
             total_asset_list_mean = to_float(statistics_credit["total_asset_list_mean"])
             total_asset_list_deviation = to_float(statistics_credit["total_asset_list_deviation"])
             total_asset = to_float(wallet.get("total_asset"))
-            return (total_asset - total_asset_list_mean) *10/ total_asset_list_deviation +50
+            return (total_asset - total_asset_list_mean) * 10 / total_asset_list_deviation + 50
         except Exception as e:
             # self.logger.error(e)
             self.logger.error(e)
@@ -135,7 +135,7 @@ class CreditScoreServiceV020:
             age_list_mean = to_float(statistics_credit["age_list_mean"])
             age_list_deviation = to_float(statistics_credit["age_list_deviation"])
             age = to_float(wallet.get("age"))
-            return (age - age_list_mean) *10/ age_list_deviation +50
+            return (age - age_list_mean) * 10 / age_list_deviation + 50
 
         except Exception as e:
             # self.logger.error(e)
@@ -167,7 +167,7 @@ class CreditScoreServiceV020:
             value_of_transfer_to_mean = to_float(statistics_credit["value_of_transfer_to_mean"])
             value_of_transfer_to_deviation = to_float(statistics_credit["value_of_transfer_to_deviation"])
             value_of_transfer_to = to_float(wallet.get("value_of_transfer_to"))
-            return (value_of_transfer_to - value_of_transfer_to_mean) *10/ value_of_transfer_to_deviation +50
+            return (value_of_transfer_to - value_of_transfer_to_mean) * 10 / value_of_transfer_to_deviation + 50
 
         except Exception as e:
             self.logger.error(e)
@@ -179,7 +179,7 @@ class CreditScoreServiceV020:
             number_of_transfer_mean = to_float(statistics_credit["number_of_transfer_mean"])
             number_of_transfer_deviation = to_float(statistics_credit["number_of_transfer_deviation"])
             number_of_transfer = to_float(wallet.get("number_of_transfer"))
-            return (number_of_transfer - number_of_transfer_mean) *10/ number_of_transfer_deviation +50
+            return (number_of_transfer - number_of_transfer_mean) * 10 / number_of_transfer_deviation + 50
 
         except Exception as e:
             self.logger.error(e)
@@ -254,8 +254,8 @@ class CreditScoreServiceV020:
     def _get_x52(self, wallet):
         return 0
 
-    def update_token_market_info(self, fileInput='../artifacts/token_credit_info/listToken.txt',
-                                 fileOutput='../artifacts/token_credit_info/infoToken.json'):
+    def update_token_market_info(self, fileInput='artifacts/token_credit_info/listToken.txt',
+                                 fileOutput='artifacts/token_credit_info/infoToken.json'):
         update_token_credit_score(fileInput=fileInput, fileOutput=fileOutput, database=self.database)
         return 0
 

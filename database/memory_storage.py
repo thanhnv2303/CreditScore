@@ -1,26 +1,26 @@
-from database.singleton import Singleton
-
-
 class MemoryStorage:
     __instance = None
 
     @staticmethod
     def getInstance():
         """ Static access method. """
-        if Singleton.__instance == None:
-            Singleton()
-        return Singleton.__instance
+        if MemoryStorage.__instance == None:
+            MemoryStorage()
+        return MemoryStorage.__instance
 
     def __init__(self):
         """ Virtually private constructor. """
-        if Singleton.__instance != None:
+        if MemoryStorage.__instance != None:
             raise Exception("This class is a singleton!")
         else:
-            Singleton.__instance = self
+            MemoryStorage.__instance = self
         self.storage = {}
 
     def add_element(self, key, value):
         self.storage[key] = value
 
-    def get_elemet(self, key):
+    def get_element(self, key):
         return self.storage.get(key)
+
+    def get_keys(self):
+        return self.storage.keys()

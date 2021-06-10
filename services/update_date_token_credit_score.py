@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 import numpy as np
 from pycoingecko import CoinGeckoAPI
@@ -16,6 +17,9 @@ def update_token_credit_score(fileInput='listToken.txt', fileOutput='infoToken.j
     # fileOutput = 'infoToken.json'
     #############
     # Get list of coins
+    cur_path = os.path.dirname(os.path.realpath(__file__)) + "/../"
+    fileInput = cur_path + fileInput
+    fileOutput = cur_path + fileOutput
     f = open(fileInput, "r")
     # Init
     coin = list()

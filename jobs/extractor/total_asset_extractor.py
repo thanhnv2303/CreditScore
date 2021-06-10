@@ -1,17 +1,24 @@
+import logging
+import time
+
 from database.database import Database
 from jobs.extractor.extractor import Extractor
 from utils.to_number import to_int
 
+logger = logging.getLogger("Calculate total asset")
+
 
 class TotalAssetExtractor(Extractor):
+    num_wallet = 0
+
     def __init__(self, start_block, end_block, checkpoint, web3, database=Database()):
         super(TotalAssetExtractor, self).__init__(start_block, end_block, checkpoint, web3, database)
         self.statistic_credit["total_asset_list"] = {}
         self.statistic_credit_lock = False
 
-
     def extract(self, wallet_data):
 
+        # start_time = time.time()
         address = wallet_data.get("address")
         if not wallet_data.get("balances") and not wallet_data.get("lending_info"):
             # self.database.delete_wallet(address)
@@ -77,7 +84,8 @@ class TotalAssetExtractor(Extractor):
         wallet_credit["lending_info"] = wallet_data.get("lending_info")
 
         self.database.update_wallet_credit(wallet_credit)
-
+        # TotalAssetExtractor.num_wallet += 1
+        # logger.info("TotalAssetExtractor.num_wallet " + str(TotalAssetExtractor.num_wallet))
         list_name = "total_asset_list"
         wallet_address = wallet_data.get("address")
 
@@ -92,3 +100,5 @@ class TotalAssetExtractor(Extractor):
         # self.statistic_credit["total_asset_list"][wallet_data.get("address")] = total_asset
         # self.database.update_statistic_credit(self.statistic_credit)
         # self.lock.release()
+
+        # logger.info("extract time one: " + str(time.time() - start_time))

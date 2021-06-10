@@ -44,6 +44,8 @@ class CalculateWalletCreditScoreJob(BaseJob):
             k_timestamp=None,
             item_exporter=ConsoleExporter(),
             database=Database(),
+            list_token_filter="artifacts/token_credit_info/listToken.txt",
+            token_info="artifacts/token_credit_info/infoToken.json"
     ):
         self.item_exporter = item_exporter
         self.batch_work_executor = BatchWorkExecutor(batch_size, max_workers)
@@ -63,7 +65,9 @@ class CalculateWalletCreditScoreJob(BaseJob):
         else:
             self.start_block = self.end_block - 900000
 
-        self.credit_score_services = CreditScoreServiceV020(database)
+        self.credit_score_services = CreditScoreServiceV020(database=database,
+                                                            list_token_filter=list_token_filter,
+                                                            token_info=token_info)
         self.statistics_credit = {}
         self._dict_cache = []
 
